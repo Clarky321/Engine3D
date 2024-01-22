@@ -1,6 +1,8 @@
 #include "Engine3DCore/Application.hpp"
 #include "Engine3DCore/Log.hpp"
+
 #include <GLFW/glfw3.h>
+#include <glad/glad.h>
 
 #include <iostream>
 
@@ -42,11 +44,19 @@ namespace Engine3D {
         /* Make the window's context current */
         glfwMakeContextCurrent(window);
 
+        if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+        {
+            LOG_CRITICAL("FAailed to initialize GLAD");
+            return -1;
+        }
+
+        glClearColor(1, 0, 0, 0);
+
         /* Loop until the user closes the window */
         while (!glfwWindowShouldClose(window))
         {
             /* Render here */
-            //glClear(GL_COLOR_BUFFER_BIT);
+            glClear(GL_COLOR_BUFFER_BIT);
 
             /* Swap front and back buffers */
             glfwSwapBuffers(window);
