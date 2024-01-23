@@ -5,5 +5,3 @@ project(${PROJECT_NAME})
 
 add_subdirectory(Engine3DCore)
 add_subdirectory(Engine3DEditor)
-
-set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT Engine3DEditor)
