@@ -15,6 +15,7 @@ namespace Engine3D {
         : m_data({ std::move(title), width, height })
     {
         int resultCode = init();
+<<<<<<< HEAD
 
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
@@ -26,6 +27,14 @@ namespace Engine3D {
         shutdown();
     }
 
+=======
+    }
+    Window::~Window()
+    {
+        shutdown();
+    }
+
+>>>>>>> 7a269cfa3b99a296da7d6634702cf3e29b9c960c
     int Window::init()
     {
         LOG_INFO("Creating window '{0}' width size {1}x{2}", m_data.title, m_data.width, m_data.height);
