@@ -9,7 +9,7 @@ set(ENGINE_PUBLIC_INCLUDES
 )
 
 set(ENGINE_PRIVATE_INCLUDES
-	src/Engine3DCore/Window.hpp
+	includes/Engine3DCore/Window.hpp
 	src/Engine3DCore/Rendering/OpenGL/ShaderProgram.hpp
 )
 
