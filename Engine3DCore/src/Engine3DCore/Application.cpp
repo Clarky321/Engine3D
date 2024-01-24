@@ -3,7 +3,6 @@
 #include "Engine3DCore/Window.hpp"
 #include "Engine3DCore/Event.hpp"
 
-
 #include <iostream>
 
 namespace Engine3D {
