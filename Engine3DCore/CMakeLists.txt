@@ -10,11 +10,13 @@ set(ENGINE_PUBLIC_INCLUDES
 
 set(ENGINE_PRIVATE_INCLUDES
 	src/Engine3DCore/Window.hpp
+	src/Engine3DCore/Rendering/OpenGL/ShaderProgram.hpp
 )
 
 set(ENGINE_PRIVATE_SOURCES
 	src/Engine3DCore/Application.cpp
 	src/Engine3DCore/Window.cpp
+	src/Engine3DCore/Rendering/OpenGL/ShaderProgram.cpp
 )
 
 add_library(${ENGINE_PROJECT_NAME} STATIC
