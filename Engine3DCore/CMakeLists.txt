@@ -11,12 +11,14 @@ set(ENGINE_PUBLIC_INCLUDES
 set(ENGINE_PRIVATE_INCLUDES
 	includes/Engine3DCore/Window.hpp
 	src/Engine3DCore/Rendering/OpenGL/ShaderProgram.hpp
+	src/Engine3DCore/Rendering/OpenGL/VertexBuffer.hpp
 )
 
 set(ENGINE_PRIVATE_SOURCES
 	src/Engine3DCore/Application.cpp
 	src/Engine3DCore/Window.cpp
 	src/Engine3DCore/Rendering/OpenGL/ShaderProgram.cpp
+	src/Engine3DCore/Rendering/OpenGL/VertexBuffer.cpp
 )
 
 set(ENGINE_ALL_SOURCES
