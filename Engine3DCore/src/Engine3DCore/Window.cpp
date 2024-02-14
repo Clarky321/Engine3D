@@ -4,6 +4,7 @@
 #include "Engine3DCore/Rendering/OpenGL/VertexBuffer.hpp"
 #include "Engine3DCore/Rendering/OpenGL/VertexArray.hpp"
 #include "Engine3DCore/Rendering/OpenGL/IndexBuffer.hpp"
+#include "Engine3DCore/Camera.hpp"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -14,6 +15,8 @@
 
 #include <glm/mat3x3.hpp>
 #include <glm/trigonometric.hpp>
+
+using namespace Enigne3D;
 
 namespace Engine3D {
 
@@ -27,28 +30,29 @@ namespace Engine3D {
     };
 
     GLuint indices[] = {
-    0, 1, 2, 3, 2, 1
+        0, 1, 2, 3, 2, 1
     };
 
     const char* vertex_shader =
         R"(#version 460
-            layout(location = 0) in vec3 vertex_position;
-            layout(location = 1) in vec3 vertex_color;
-            uniform mat4 model_matrix;
-            out vec3 color;
-            void main() {
-                color = vertex_color;
-                gl_Position = model_matrix * vec4(vertex_position, 1.0);
-            }
+           layout(location = 0) in vec3 vertex_position;
+           layout(location = 1) in vec3 vertex_color;
+           uniform mat4 model_matrix;
+           uniform mat4 view_projection_matrix;
+           out vec3 color;
+           void main() {
+              color = vertex_color;
+              gl_Position = view_projection_matrix * model_matrix * vec4(vertex_position, 1.0);
+           }
         )";
 
     const char* fragment_shader =
         R"(#version 460
-            in vec3 color;
-            out vec4 frag_color;
-            void main() {
-                frag_color = vec4(color, 1.0);
-            }
+           in vec3 color;
+           out vec4 frag_color;
+           void main() {
+              frag_color = vec4(color, 1.0);
+           }
         )";
 
     std::unique_ptr<ShaderProgram> p_shader_program;
@@ -58,13 +62,17 @@ namespace Engine3D {
 
     float scale[3] = { 1.f, 1.f, 1.f };
     float rotate = 0.f;
-    float translate[3] = { 0.f, 0.f, 1.f };
+    float translate[3] = { 0.f, 0.f, 0.f };
+
+    float camera_position[3] = { 0.f, 0.f, 1.f };
+    float camera_rotation[3] = { 0.f, 0.f, 0.f };
+    bool perspective_camera = false;
+    Camera camera;
 
     Window::Window(std::string title, const unsigned int width, const unsigned int height)
         : m_data({ std::move(title), width, height })
     {
         int resultCode = init();
-
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
         ImGui_ImplOpenGL3_Init();
@@ -78,25 +86,24 @@ namespace Engine3D {
 
     int Window::init()
     {
-        LOG_INFO("Creating window '{0}' width size {1}x{2}", m_data.title, m_data.width, m_data.height);
+        LOG_INFO("Creating window '{0}' with size {1}x{2}", m_data.title, m_data.width, m_data.height);
 
         if (!s_GLFW_initialized)
         {
             if (!glfwInit())
             {
-                LOG_CRITICAL("Can`t initialize GLFW!");
-
+                LOG_CRITICAL("Can't initialize GLFW!");
                 return -1;
             }
-
             s_GLFW_initialized = true;
         }
 
+
         m_pWindow = glfwCreateWindow(m_data.width, m_data.height, m_data.title.c_str(), nullptr, nullptr);
+
         if (!m_pWindow)
         {
-            LOG_CRITICAL("Can`t create window {0}", m_data.title, m_data.width, m_data.height);
-
+            LOG_CRITICAL("Can't create window {0} with size {1}x{2}", m_data.title, m_data.width, m_data.height);
             glfwTerminate();
             return -2;
         }
@@ -117,7 +124,6 @@ namespace Engine3D {
                 WindowData& data = *static_cast<WindowData*>(glfwGetWindowUserPointer(pWindow));
                 data.width = width;
                 data.height = height;
-
                 EventWindowResize event(width, height);
                 data.eventCallbackFn(event);
             }
@@ -127,7 +133,6 @@ namespace Engine3D {
             [](GLFWwindow* pWindow, double x, double y)
             {
                 WindowData& data = *static_cast<WindowData*>(glfwGetWindowUserPointer(pWindow));
-
                 EventMouseMoved event(x, y);
                 data.eventCallbackFn(event);
             }
@@ -137,7 +142,6 @@ namespace Engine3D {
             [](GLFWwindow* pWindow)
             {
                 WindowData& data = *static_cast<WindowData*>(glfwGetWindowUserPointer(pWindow));
-
                 EventWindowClose event;
                 data.eventCallbackFn(event);
             }
@@ -167,14 +171,13 @@ namespace Engine3D {
             ShaderDataType::Float3
         };
 
+
         p_vao = std::make_unique<VertexArray>();
         p_positions_colors_vbo = std::make_unique<VertexBuffer>(positions_colors2, sizeof(positions_colors2), buffer_layout_2vec3);
         p_index_buffer = std::make_unique<IndexBuffer>(indices, sizeof(indices) / sizeof(GLuint));
 
         p_vao->add_vertex_buffer(*p_positions_colors_vbo);
         p_vao->set_index_buffer(*p_index_buffer);
-
-
 
         glm::mat3 mat_1(4, 0, 0, 2, 8, 1, 0, 1, 0);
         glm::mat3 mat_2(4, 2, 9, 2, 0, 4, 1, 4, 2);
@@ -192,21 +195,19 @@ namespace Engine3D {
 
         glm::vec4 result_vec = mat_identity * vec;
 
-        LOG_INFO("({0} {1} {2} {3})", result_vec[0], result_vec[1], result_vec[2], result_vec[3]);
-
-
+        LOG_INFO("({0} {1} {2} {3})", result_vec.x, result_vec.y, result_vec.z, result_vec.w);
 
         return 0;
     }
 
-	void Window::shutdown()
-	{
+    void Window::shutdown()
+    {
         glfwDestroyWindow(m_pWindow);
         glfwTerminate();
-	}
+    }
 
-	void Window::on_update()
-	{
+    void Window::on_update()
+    {
         glClearColor(m_background_color[0], m_background_color[1], m_background_color[2], m_background_color[3]);
         glClear(GL_COLOR_BUFFER_BIT);
 
@@ -226,6 +227,10 @@ namespace Engine3D {
         ImGui::SliderFloat("rotate", &rotate, 0.f, 360.f);
         ImGui::SliderFloat3("translate", translate, -1.f, 1.f);
 
+        ImGui::SliderFloat3("camera position", camera_position, -10.f, 10.f);
+        ImGui::SliderFloat3("camera rotation", camera_rotation, 0, 360.f);
+        ImGui::Checkbox("Perspective camera", &perspective_camera);
+
         p_shader_program->bind();
 
         glm::mat4 scale_matrix(scale[0], 0,        0,        0,
@@ -244,12 +249,16 @@ namespace Engine3D {
                                    0,            0,            1,            0,
                                    translate[0], translate[1], translate[2], 1);
 
-        glm::mat4 model_matrix = translate_matrix * rotate_matrix * scale_matrix;
         //glm::mat4 model_matrix = scale_matrix * rotate_matrix * translate_matrix;
+        glm::mat4 model_matrix = translate_matrix * rotate_matrix * scale_matrix;
         p_shader_program->setMatrix4("model_matrix", model_matrix);
 
-        p_vao->bind();
+        camera.set_position_rotation(glm::vec3(camera_position[0], camera_position[1], camera_position[2]),
+                                     glm::vec3(camera_rotation[0], camera_rotation[1], camera_rotation[2]));
+        camera.set_projection_mode(perspective_camera ? Camera::ProjectionMode::Perspective : Camera::ProjectionMode::Orthographic);
+        p_shader_program->setMatrix4("view_projection_matrix", camera.get_projection_matrix() * camera.get_view_matrix());
 
+        p_vao->bind();
         glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(p_vao->get_indices_count()), GL_UNSIGNED_INT, nullptr);
 
         ImGui::End();
