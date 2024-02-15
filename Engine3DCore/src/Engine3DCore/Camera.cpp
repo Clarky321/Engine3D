@@ -18,9 +18,9 @@ namespace Enigne3D {
 
     void Camera::update_view_matrix()
     {
-        const float roll_in_radians  = glm::radians(m_rotation.x);
+        const float roll_in_radians = glm::radians(m_rotation.x);
         const float pitch_in_radians = glm::radians(m_rotation.y);
-        const float yaw_in_radians   = glm::radians(m_rotation.z);
+        const float yaw_in_radians = glm::radians(m_rotation.z);
 
         const glm::mat3 rotate_matrix_x(1, 0, 0,
             0, cos(roll_in_radians), sin(roll_in_radians),
@@ -36,7 +36,7 @@ namespace Enigne3D {
 
         const glm::mat3 euler_rotate_matrix = rotate_matrix_z * rotate_matrix_y * rotate_matrix_x;
         m_direction = glm::normalize(euler_rotate_matrix * s_world_forward);
-        m_right = glm::normalize(euler_rotate_matrix * s_world_forward);
+        m_right = glm::normalize(euler_rotate_matrix * s_world_right);
         m_up = glm::cross(m_right, m_direction);
 
         m_view_matrix = glm::lookAt(m_position, m_position + m_direction, m_up);
