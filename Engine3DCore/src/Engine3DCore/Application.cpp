@@ -2,6 +2,7 @@
 #include "Engine3DCore/Log.hpp"
 #include "Engine3DCore/Window.hpp"
 #include "Engine3DCore/Event.hpp"
+#include "Engine3DCore/Input.hpp"
 
 #include "Engine3DCore/Rendering/OpenGL/ShaderProgram.hpp"
 #include "Engine3DCore/Rendering/OpenGL/VertexBuffer.hpp"
@@ -94,6 +95,33 @@ namespace Engine3D {
             {
                 LOG_INFO("[WindowClose]");
                 m_bCloseWindow = true;
+            });
+
+        m_event_dispatcher.add_event_listener<EventKeyPressed>(
+            [&](EventKeyPressed& event)
+            {
+                if (event.key_code <= KeyCode::KEY_Z)
+                {
+                    if (event.repeated)
+                    {
+                        LOG_INFO("[Key pressed: {0}, repeated", static_cast<char>(event.key_code));
+                    }
+                    else
+                    {
+                        LOG_INFO("[Key pressed: {0}", static_cast<char>(event.key_code));
+                    }
+                }
+                Input::PressKey(event.key_code);
+            });
+
+        m_event_dispatcher.add_event_listener<EventKeyReleased>(
+            [&](EventKeyReleased& event)
+            {
+                if (event.key_code <= KeyCode::KEY_Z)
+                {
+                    LOG_INFO("[Key released: {0}", static_cast<char>(event.key_code));
+                }
+                Input::ReleaseKey(event.key_code);
             });
 
         m_pWindow->set_event_callback(

@@ -7,6 +7,8 @@ set(ENGINE_PUBLIC_INCLUDES
 	includes/Engine3DCore/Log.hpp
 	includes/Engine3DCore/Event.hpp
 	includes/Engine3DCore/Camera.hpp
+	includes/Engine3DCore/Keys.hpp
+	includes/Engine3DCore/Input.hpp
 )
 
 set(ENGINE_PRIVATE_INCLUDES
@@ -22,6 +24,7 @@ set(ENGINE_PRIVATE_INCLUDES
 set(ENGINE_PRIVATE_SOURCES
 	src/Engine3DCore/Application.cpp
 	src/Engine3DCore/Window.cpp
+	src/Engine3DCore/Input.cpp
 	src/Engine3DCore/Camera.cpp
 	src/Engine3DCore/Modules/UImodule.cpp
 	src/Engine3DCore/Rendering/OpenGL/Renderer_OpenGL.cpp

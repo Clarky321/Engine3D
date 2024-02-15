@@ -2,13 +2,54 @@
 #include <memory>
 #include <imgui/imgui.h>
 
+#include <Engine3DCore/Input.hpp>
 #include <Engine3DCore/Application.hpp>
 
 class Engine3DEditor : public Engine3D::Application
 {
 	virtual void on_update() override
 	{
-		//std::cout << "Update frame: " << frame++ << std::endl;
+        if (Engine3D::Input::IsKeyPressed(Engine3D::KeyCode::KEY_W))
+        {
+            camera_position[2] -= 0.01f;
+        }
+        if (Engine3D::Input::IsKeyPressed(Engine3D::KeyCode::KEY_S))
+        {
+            camera_position[2] += 0.01f;
+        }
+        if (Engine3D::Input::IsKeyPressed(Engine3D::KeyCode::KEY_A))
+        {
+            camera_position[0] -= 0.01f;
+        }
+        if (Engine3D::Input::IsKeyPressed(Engine3D::KeyCode::KEY_D))
+        {
+            camera_position[0] += 0.01f;
+        }
+        if (Engine3D::Input::IsKeyPressed(Engine3D::KeyCode::KEY_E))
+        {
+            camera_position[1] += 0.01f;
+        }
+        if (Engine3D::Input::IsKeyPressed(Engine3D::KeyCode::KEY_Q))
+        {
+            camera_position[1] -= 0.01f;
+        }
+
+        if (Engine3D::Input::IsKeyPressed(Engine3D::KeyCode::KEY_UP))
+        {
+            camera_rotation[0] += 0.5f;
+        }
+        if (Engine3D::Input::IsKeyPressed(Engine3D::KeyCode::KEY_DOWN))
+        {
+            camera_rotation[0] -= 0.5f;
+        }
+        if (Engine3D::Input::IsKeyPressed(Engine3D::KeyCode::KEY_RIGHT))
+        {
+            camera_rotation[1] -= 0.5f;
+        }
+        if (Engine3D::Input::IsKeyPressed(Engine3D::KeyCode::KEY_LEFT))
+        {
+            camera_rotation[1] += 0.5f;
+        }
 	}
 
 	virtual void on_ui_draw() override
