@@ -1,12 +1,23 @@
 #include <iostream>
 #include <memory>
+#include <imgui/imgui.h>
+
 #include <Engine3DCore/Application.hpp>
 
-class MyApp : public Engine3D::Application
+class Engine3DEditor : public Engine3D::Application
 {
 	virtual void on_update() override
 	{
 		//std::cout << "Update frame: " << frame++ << std::endl;
+	}
+
+	virtual void on_ui_draw() override
+	{
+		ImGui::Begin("Editor");
+		ImGui::SliderFloat3("camera position", camera_position, -10.f, 10.f);
+		ImGui::SliderFloat3("camera rotation", camera_rotation, 0, 360.f);
+		ImGui::Checkbox("Perspective camera", &perspective_camera);
+		ImGui::End();
 	}
 
 	int frame = 0;
@@ -14,9 +25,9 @@ class MyApp : public Engine3D::Application
 
 int main()
 {
-	auto myApp = std::make_unique<MyApp>();
+	auto pEngine3DEditor = std::make_unique<Engine3DEditor>();
 
-	int returnCode = myApp->start(1024, 768, "My first App");
+	int returnCode = pEngine3DEditor->start(1024, 768, "Engine3D Editor");
 
 	std::cin.get();
 
